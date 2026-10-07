@@ -1,127 +1,137 @@
 # PenWin
 
-iPad + Apple Pencil'ı Windows için kablosuz çizim tableti yapar. iPad'e **uygulama kurulmaz**: Safari'de bir adres açarsınız, kalem hareketleriniz yerel Wi-Fi üzerinden anında PC'ye gider. Sharp3D ve Fusion 360 gibi CAD programlarında fare yerine kalemle çalışmak için yazıldı.
+**English** | [Türkçe](README.tr.md)
 
-![iPad'de PenWin: araç çubuğu, monitör oranında çizim alanı ve kalem izi](docs/penwin-ipad.png)
+Turns an iPad + Apple Pencil into a wireless drawing tablet for Windows. **Nothing is installed on the iPad**: you open an address in Safari and your pen movements reach the PC instantly over the local Wi-Fi. Built for working with a pen instead of a mouse in CAD programs such as Sharp3D and Fusion 360.
+
+> The iPad interface is currently in Turkish; the button names are given below with their meaning.
+
+### iPad screen — the PenWin page opened in Safari
+
+![PenWin on the iPad: toolbar, drawing area matching the monitor's aspect ratio, and the pen trail](docs/penwin-ipad.png)
+
+*Captured on the iPad (1180×820, landscape). The blue lines are the pen's temporary trail on the iPad; the orange crosshair is the position of the hovering pen.*
 
 ```
  iPad (Safari)                         Windows PC
  ┌───────────────────┐   WebSocket    ┌──────────────────────────────┐
  │ Pointer Events    │ ── Wi-Fi ───▶  │ penwin.exe                   │
- │ (kalem, basınç,   │  ~1 satır/örn. │  ├─ küçük HTTP + WS sunucusu │
- │  eğim, hover)     │                │  ├─ SendInput   → fare/klavye│
- │ araç çubuğu       │ ◀── hello/pong │  └─ Synthetic Pointer → Ink  │
+ │ (pen, pressure,   │ ~1 line/sample │  ├─ tiny HTTP + WS server    │
+ │  tilt, hover)     │                │  ├─ SendInput  → mouse/keys  │
+ │ toolbar           │ ◀── hello/pong │  └─ Synthetic Pointer → Ink  │
  └───────────────────┘                └──────────────────────────────┘
 ```
 
-iPad, Wacom Intuos gibi **ekransız tablet** olarak çalışır: kalemi iPad'de gezdirirken imleci monitörde izlersiniz. Nerede olduğunuzu görmek isterseniz araç çubuğundaki **PC ekranı** anahtarı, seçili monitörün görüntüsünü çizim alanının arkasına yarı saydam olarak saniyede bir kare yerleştirir. iPad'deki çalışma alanı seçilen monitörün en-boy oranındadır ve monitörün tamamına birebir eşlenir.
+The iPad works like a **screenless tablet** such as a Wacom Intuos: you move the pen on the iPad and watch the cursor on the monitor. If you want to see where you are, the **PC ekranı** (PC screen) switch in the toolbar places a semi-transparent image of the selected monitor behind the drawing area, refreshed once per second. The drawing area on the iPad has the selected monitor's aspect ratio and maps one-to-one onto the whole monitor.
 
-## Gereksinimler
+## Requirements
 
-- Windows 10 (1809+) veya 11. Derleyici (`csc.exe`) .NET Framework 4 ile Windows'ta zaten vardır; ek kurulum gerekmez.
-- iPad'de Safari (iPadOS 15.4+). Apple Pencil hover'ı (Pencil Pro / Pencil 2 + destekleyen iPad'ler) varsa imleç dokunmadan önce de hareket eder.
-- PC ve iPad aynı yerel ağda olmalı. 5 GHz Wi-Fi gecikmeyi belirgin azaltır.
+- Windows 10 (1809+) or 11. The compiler (`csc.exe`) already ships with Windows as part of .NET Framework 4; nothing else to install.
+- Safari on the iPad (iPadOS 15.4+). With Apple Pencil hover (Pencil Pro / Pencil 2 on supported iPads) the cursor moves before the pen touches the screen.
+- The PC and the iPad must be on the same local network. 5 GHz Wi-Fi noticeably lowers latency.
 
-## Çalıştırma
+## Running
 
 ```bash
 start.cmd
 ```
 
-İlk çalıştırmada `build.cmd` otomatik çağrılır ve `bin\penwin.exe` üretilir. Pencerede şuna benzer bir adres çıkar:
+On the first run `build.cmd` is called automatically and produces `bin\penwin.exe`. The window shows an address like this:
 
 ```
   iPad'de Safari ile şu adresi açın:
      http://192.168.1.20:8765/#k=K7M2QX
 ```
 
-1. Windows Güvenlik Duvarı sorarsa **Özel ağlar** için izin verin.
-2. Adresi iPad'de Safari'de açın. Üstteki göstergede **Bağlı** yazmalı.
-3. Kalıcı kullanım için Safari'de *Paylaş → Ana Ekrana Ekle*: adres çubuğu olmadan tam ekran açılır, anahtar da hatırlanır.
+1. If Windows Firewall asks, allow access on **Private networks**.
+2. Open the address in Safari on the iPad. The indicator at the top should read **Bağlı** (connected).
+3. For everyday use choose *Share → Add to Home Screen* in Safari: it opens full screen without the address bar and remembers the key.
 
-Anahtar (`#k=...`) `%LOCALAPPDATA%\PenWin\token.txt` içinde saklanır; yeniden derlemede değişmez. Yenilemek için `start.cmd --new-key`.
+The key (`#k=...`) is stored in `%LOCALAPPDATA%\PenWin\token.txt` and survives rebuilds. Run `start.cmd --new-key` to generate a new one.
 
-## Kullanım
+## Usage
 
-**Kalem** — Varsayılan **Fare modu**nda kalem sol tıktır: dokun = tıkla, sürükle = sürükle, havada gezdir = imleci taşı (hover destekleniyorsa).
+**Pen** — In the default **mouse mode** the pen is the left button: tap = click, drag = drag, hover = move the cursor (if hover is supported).
 
-**Araç çubuğu** (sol tarafta, ayarlardan sağa alınabilir):
+**Toolbar** (on the left; can be moved to the right in the settings):
 
-| Düğme | Ne yapar |
+| Button | What it does |
 | --- | --- |
-| Sol | Kalem sol tık (varsayılan) |
-| Sağ | Sonraki dokunuş sağ tık olur, sonra Sol'a döner |
-| Pan | Kalem orta tuşla sürükler (Fusion 360'ta görünümü kaydırır) |
-| Orbit | Kalem Shift + orta tuşla sürükler (Fusion 360'ta döndürür) |
-| Shift / Ctrl | Basılı kalır, tekrar dokununca bırakılır (çoklu seçim için) |
-| Esc, Enter, Sil, Tab | Tuşlar. Tab, Fusion'da ölçü giriş alanları arasında geçer |
-| Geri / İleri | Ctrl+Z / Ctrl+Y |
-| + / − | Fare tekerleği (zoom) |
-| PC ekranı | Açıkken seçili monitörün görüntüsü çizim alanının arkasında yarı saydam görünür (saniyede 1 kare). Görüntü alınamazsa düğmede "alınamadı" yazar (ör. kilit ekranı, UAC penceresi). |
+| Sol (left) | Pen is the left button (default) |
+| Sağ (right) | The next touch is a right click, then it returns to left |
+| Pan | Pen drags with the middle button (pans the view in Fusion 360) |
+| Orbit | Pen drags with Shift + middle button (orbits in Fusion 360) |
+| Shift / Ctrl | Stays held down until tapped again (for multi-select) |
+| Esc, Enter, Sil (Delete), Tab | Keys. Tab moves between dimension input fields in Fusion |
+| Geri / İleri (undo / redo) | Ctrl+Z / Ctrl+Y |
+| + / − | Mouse wheel (zoom) |
+| PC ekranı (PC screen) | When on, the selected monitor appears semi-transparent behind the drawing area (1 frame per second). If it cannot be captured the button shows "alınamadı" (failed), e.g. on the lock screen or a UAC prompt. |
 
-Pan ya da Orbit etkinken aynı düğmeye tekrar dokunmak Sol'a döndürür.
+While Pan or Orbit is active, tapping the same button again returns to left click.
 
-**İki parmak** (ayarlardan kapatılabilir): sürükle = pan (orta tuş), sıkıştır/aç = zoom (tekerlek). Kalem kullanıldıktan hemen sonra gelen parmak/avuç temasları yok sayılır.
+**Two fingers** (can be turned off in the settings): drag = pan (middle button), pinch = zoom (wheel). Finger and palm touches right after pen use are ignored.
 
-**Ayarlar**
+**Settings (Ayarlar)**
 
-<img src="docs/penwin-ayarlar.png" alt="Ayarlar penceresi" width="640">
+*iPad screen — the settings window:*
 
-- **Çalışma modu:** *Fare* CAD için önerilir ve her programda çalışır. *Kalem (Windows Ink)* basınç ve eğimi gerçek kalem girdisi olarak gönderir; basınca duyarlı çizim programları içindir. Bu modda Sağ/Pan/Orbit yine fare olarak gider.
-- **Ekran:** Birden çok monitör varsa hangisinin eşleneceği.
-- **Tıklama ölü bölgesi:** Kalem dokunduktan sonra bu kadar (px) kaymadan hareket gönderilmez. Böylece titreyen bir tık, CAD'de istenmeyen bir sürüklemeye (ör. Fusion'da çizgi yerine yay) dönüşmez. Varsayılan 4 px.
-- **PC ekranı saydamlığı:** Arka plan görüntüsünün ne kadar belirgin olacağı (varsayılan %35).
-- **Temas eşiği:** Hover desteklemeyen iPad'ler için. Hafif temas yalnızca imleci gezdirir, bu basıncı aşınca tıklar.
+<img src="docs/penwin-ayarlar.png" alt="PenWin settings window on the iPad" width="640">
 
-## Sorun giderme
+- **Mode:** *Fare* (mouse) is recommended for CAD and works in every program. *Kalem (Windows Ink)* (pen) sends pressure and tilt as real pen input; it is meant for pressure-sensitive drawing programs. In this mode right/pan/orbit are still sent as mouse input.
+- **Ekran (screen):** Which monitor to map when there are several.
+- **Click dead zone:** After the pen touches down, no movement is sent until it moves this many pixels. A shaky tap therefore does not become an unwanted drag in CAD (e.g. an arc instead of a line in Fusion). Default 4 px.
+- **PC screen opacity:** How visible the background image is (default 35%).
+- **Contact threshold:** For iPads without hover. A light touch only moves the cursor; it clicks once this pressure is exceeded.
 
-| Belirti | Çözüm |
+## Troubleshooting
+
+| Symptom | Fix |
 | --- | --- |
-| iPad'de sayfa açılmıyor | Güvenlik duvarı iznini kontrol edin (*Windows Güvenlik → Güvenlik duvarı → Bir uygulamaya izin ver* → `penwin.exe`, Özel). Ağ profili *Ortak* ise *Özel* yapın. Misafir Wi-Fi'ları cihazları birbirinden yalıttığı için çalışmayabilir. |
-| "Anahtar hatalı" | PC penceresindeki 6 haneli anahtarı Ayarlar'a yazın. |
-| "Başka bir cihaz bağlandı" | Aynı anda tek cihaz kontrol eder; son bağlanan kazanır. |
-| Bazı pencerelerde hiçbir şey olmuyor | Program yönetici olarak çalışıyorsa Windows dışarıdan girdiye izin vermez. `penwin.exe`'yi de yönetici olarak çalıştırın. |
-| İmleç takılıyor / gecikme yüksek | Göstergedeki ms değerine bakın. 5 GHz ağa geçin, iPad'i modeme yaklaştırın. |
-| Bağlantı koparsa | Basılı kalan tuş veya düğme kalmaz, sunucu hepsini bırakır. Sayfa kendiliğinden yeniden bağlanır. |
+| The page does not open on the iPad | Check the firewall permission (*Windows Security → Firewall → Allow an app* → `penwin.exe`, Private). If the network profile is *Public*, switch it to *Private*. Guest Wi-Fi networks isolate devices from each other and may not work. |
+| "Anahtar hatalı" (wrong key) | Enter the 6-character key shown in the PC window in the settings. |
+| "Başka bir cihaz bağlandı" (another device connected) | Only one device controls the PC at a time; the last one to connect wins. |
+| Nothing happens in some windows | Windows blocks outside input to programs running as administrator. Run `penwin.exe` as administrator too. |
+| Cursor stutters / high latency | Check the ms value in the indicator. Switch to 5 GHz, move the iPad closer to the router. |
+| The connection drops | No key or button stays held down; the server releases everything. The page reconnects by itself. |
 
-## Sınırlamalar
+## Limitations
 
-- Apple Pencil Pro'nun sıkıştırma, çift dokunma ve gövde döndürme hareketleri web sayfalarına açık değil; bunların yerini araç çubuğu tutar.
-- Bağlantı yerel ağda şifresiz HTTP/WebSocket'tir. Kontrolü ve ekran görüntüsünü 6 haneli anahtar korur; güvenmediğiniz ağlarda çalıştırmayın.
-- Ekran görüntüsü canlı yayın değildir, saniyede bir kare gelir; konum bulmak içindir. Fare imleci görüntüde yoktur, onun yerine iPad'deki turuncu imleç kullanılır.
-- Sayfa PC'nin kendi tarayıcısında açılırsa fare olayları bilerek yok sayılır (imleç kendini besleyen bir döngüye girmesin diye).
+- Apple Pencil Pro's squeeze, double tap and barrel roll are not exposed to web pages; the toolbar replaces them.
+- The connection is unencrypted HTTP/WebSocket on the local network. Control and screen images are protected by the 6-character key; do not run it on networks you do not trust.
+- The screen image is not a live stream; one frame arrives per second and it is meant for finding your position. The mouse cursor is not in the image; the orange cursor on the iPad is used instead.
+- If the page is opened in a browser on the PC itself, mouse events are ignored on purpose (so the cursor cannot drive itself in a loop).
 
-## Komut satırı
-
-```
-penwin.exe [--port 8765] [--bind 0.0.0.0] [--new-key] [--dry-run] [--web <klasör>]
-```
-
-- `--port`: dinlenecek port.
-- `--bind`: yalnızca belirli bir arayüzü dinler (ör. `127.0.0.1` ile test).
-- `--new-key`: yeni bağlantı anahtarı üretir.
-- `--dry-run`: gelenleri işler ama Windows'a girdi göndermez; arayüz denemesi içindir.
-- `--web`: sayfayı gömülü kaynak yerine diskten sunar (geliştirme).
-
-## Proje yapısı
+## Command line
 
 ```
-src/Program.cs      giriş, seçenekler, anahtar, konsol
-src/WebServer.cs    HTTP + WebSocket (RFC 6455), tek aktif istemci
-src/Controller.cs   satır protokolü → fare/kalem/klavye; protokol açıklaması başında
-src/Injector.cs     SendInput ve sentetik kalem (InjectSyntheticPointerInput)
-src/Monitors.cs     monitör listesi (fiziksel piksel)
-src/ScreenCapture.cs  /shot.jpg için monitör görüntüsü (küçültülmüş JPEG)
-src/Native.cs       Win32 tanımları
-web/                iPad sayfası (HTML, CSS, JS); exe'ye gömülür
+penwin.exe [--port 8765] [--bind 0.0.0.0] [--new-key] [--dry-run] [--web <folder>]
 ```
 
-Geliştirirken sayfa değişikliklerini yeniden derlemeden görmek için:
+- `--port`: port to listen on.
+- `--bind`: listen only on a specific interface (e.g. `127.0.0.1` for testing).
+- `--new-key`: generate a new connection key.
+- `--dry-run`: process incoming input without sending anything to Windows; for trying out the interface.
+- `--web`: serve the page from disk instead of the embedded resources (development).
+
+## Project structure
+
+```
+src/Program.cs        entry point, options, key, console
+src/WebServer.cs      HTTP + WebSocket (RFC 6455), single active client
+src/Controller.cs     line protocol → mouse/pen/keyboard; protocol described at the top
+src/Injector.cs       SendInput and the synthetic pen (InjectSyntheticPointerInput)
+src/Monitors.cs       monitor list (physical pixels)
+src/ScreenCapture.cs  monitor image for /shot.jpg (scaled-down JPEG)
+src/Native.cs         Win32 declarations
+web/                  iPad page (HTML, CSS, JS); embedded into the exe
+```
+
+To see page changes without rebuilding while developing:
 
 ```bash
 bin\penwin.exe --dry-run --web web
 ```
 
-## Lisans
+## License
 
 [MIT](LICENSE)
