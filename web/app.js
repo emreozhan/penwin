@@ -4,6 +4,8 @@
  * Satır protokolünün tamamı src/Controller.cs başındaki açıklamadadır.
  */
 
+import { applyLang, resolveLang, t } from './i18n.js';
+
 /** @typedef {{ name: string, w: number, h: number, primary: boolean }} MonitorInfo */
 /**
  * @typedef {object} Settings
@@ -17,6 +19,7 @@
  * @property {string} token
  * @property {boolean} mirror        PC ekranı arka planda
  * @property {number} mirrorOpacity  0..1
+ * @property {'' | 'tr' | 'en'} lang  '' = iPad diline göre
  */
 /**
  * @typedef {object} Stroke
@@ -52,6 +55,7 @@ const DEFAULTS = {
   token: '',
   mirror: false,
   mirrorOpacity: 0.35,
+  lang: '',
 };
 
 /** @returns {Settings} */
@@ -142,8 +146,8 @@ function connect() {
   clearTimeout(state.retryTimer);
   state.stopped = false;
   if (!settings.token) {
-    setStatus('off', 'Anahtar gerekli');
-    showNotice('PC\'deki PenWin penceresinde yazan 6 haneli anahtarı girin.', 'Ayarları aç', openSettings);
+    setStatus('off', 'status.needKey');
+    showNotice('notice.needKey', 'action.openSettings', openSettings);
     return;
   }
   if (state.ws) {
@@ -154,7 +158,7 @@ function connect() {
 
   const ws = new WebSocket(`ws://${location.host}/ws?k=${encodeURIComponent(settings.token)}`);
   state.ws = ws;
-  setStatus('wait', 'Bağlanıyor…');
+  setStatus('wait', 'status.connecting');
 
   ws.addEventListener('open', () => {
     state.retry = 0;
@@ -174,7 +178,7 @@ function connect() {
     state.stroke = null;
     resetLatches();
     latencyEl.textContent = '';
-    setStatus('off', 'Bağlantı yok');
+    setStatus('off', 'status.disconnected');
     if (!state.stopped) scheduleReconnect();
   });
 }
@@ -194,7 +198,7 @@ function onServerMessage(msg) {
       state.monitors = Array.isArray(msg.monitors) ? msg.monitors : [];
       if (settings.mon >= state.monitors.length) settings.mon = 0;
       if (settings.mode === 'pen' && !state.penAvailable) settings.mode = 'mouse';
-      setStatus('on', 'Bağlı');
+      setStatus('on', 'status.connected');
       hideNotice();
       updateBadges();
       layout();
@@ -206,11 +210,11 @@ function onServerMessage(msg) {
     case 'error':
       state.stopped = true;
       if (msg.code === 'token') {
-        setStatus('off', 'Anahtar hatalı');
-        showNotice('Bağlantı anahtarı hatalı. PC\'deki PenWin penceresindeki anahtarı girin.', 'Ayarları aç', openSettings);
+        setStatus('off', 'status.badKey');
+        showNotice('notice.badKey', 'action.openSettings', openSettings);
       } else if (msg.code === 'replaced') {
-        setStatus('off', 'Başka cihaz bağlandı');
-        showNotice('Başka bir cihaz PenWin\'e bağlandı.', 'Yeniden bağlan', connect);
+        setStatus('off', 'status.replaced');
+        showNotice('notice.replaced', 'action.reconnect', connect);
       }
       break;
     default:
@@ -675,17 +679,28 @@ for (const type of ['gesturestart', 'gesturechange', 'dblclick', 'contextmenu'])
 
 // ------------------------------------------------------------------ durum göstergeleri
 
+/** Dil değişince yeniden çizebilmek için son durum ve bildirim anahtarları saklanır. */
+const shown = {
+  /** @type {'on' | 'off' | 'wait'} */
+  statusKind: 'wait',
+  statusKey: 'status.connecting',
+  /** @type {null | { textKey: string, actionKey: string, action: () => void }} */
+  notice: null,
+};
+
 /**
  * @param {'on' | 'off' | 'wait'} kind
- * @param {string} text
+ * @param {string} key Sözlük anahtarı
  */
-function setStatus(kind, text) {
+function setStatus(kind, key) {
+  shown.statusKind = kind;
+  shown.statusKey = key;
   dot.dataset.state = kind;
-  statusText.textContent = text;
+  statusText.textContent = t(key);
 }
 
 function updateBadges() {
-  modeBadge.textContent = settings.mode === 'pen' ? 'Kalem' : 'Fare';
+  modeBadge.textContent = t(settings.mode === 'pen' ? 'mode.pen' : 'mode.mouse');
   modeBadge.classList.toggle('on', settings.mode === 'pen');
   hoverBadge.textContent = state.hoverSeen ? 'Hover ✓' : 'Hover ?';
   hoverBadge.classList.toggle('on', state.hoverSeen);
@@ -693,16 +708,17 @@ function updateBadges() {
 }
 
 /**
- * @param {string} text
- * @param {string} actionLabel
+ * @param {string} textKey
+ * @param {string} actionKey
  * @param {() => void} action
  */
-function showNotice(text, actionLabel, action) {
+function showNotice(textKey, actionKey, action) {
+  shown.notice = { textKey, actionKey, action };
   notice.replaceChildren();
   const p = document.createElement('div');
-  p.textContent = text;
+  p.textContent = t(textKey);
   const button = document.createElement('button');
-  button.textContent = actionLabel;
+  button.textContent = t(actionKey);
   button.addEventListener('pointerup', (e) => {
     e.preventDefault();
     action();
@@ -712,7 +728,18 @@ function showNotice(text, actionLabel, action) {
 }
 
 function hideNotice() {
+  shown.notice = null;
   notice.hidden = true;
+}
+
+/** Dili uygular ve JS'in ürettiği metinleri de yeniler. */
+function refreshLanguage() {
+  applyLang(resolveLang(settings.lang || undefined));
+  setStatus(shown.statusKind, shown.statusKey);
+  if (shown.notice) showNotice(shown.notice.textKey, shown.notice.actionKey, shown.notice.action);
+  updateBadges();
+  setMirrorError(mirror.failed);
+  if (dialog.open) fillSettings();
 }
 
 // ------------------------------------------------------------------ PC ekranı arka planı
@@ -721,6 +748,7 @@ const mirror = {
   /** @type {ReturnType<typeof setTimeout> | undefined} */
   timer: undefined,
   busy: false,
+  failed: false,
   url: '',
 };
 
@@ -748,9 +776,9 @@ function applyMirrorOpacity() {
 
 /** @param {boolean} failed */
 function setMirrorError(failed) {
+  mirror.failed = failed;
   mirrorSwitch.dataset.error = String(failed);
-  const hint = mirrorSwitch.querySelector('small');
-  if (hint) hint.textContent = failed ? 'alınamadı' : 'arka planda';
+  $('#mirrorHint').textContent = t(failed ? 'mirror.failed' : 'mirror.sub');
 }
 
 /**
@@ -820,11 +848,19 @@ function field(name) {
 }
 
 function openSettings() {
+  fillSettings();
+  if (!dialog.open) dialog.showModal();
+}
+
+function fillSettings() {
+  field('lang').value = resolveLang(settings.lang || undefined);
   const monSelect = /** @type {HTMLSelectElement} */ (field('mon'));
   monSelect.replaceChildren(
-    ...state.monitors.map((m, i) => new Option(`Ekran ${i + 1} — ${m.w}×${m.h}${m.primary ? ' (ana)' : ''}`, String(i))),
+    ...state.monitors.map(
+      (m, i) => new Option(t('set.screenItem', { n: i + 1, w: m.w, h: m.h }) + (m.primary ? t('set.primary') : ''), String(i)),
+    ),
   );
-  if (!state.monitors.length) monSelect.append(new Option('Bağlantı bekleniyor', '0'));
+  if (!state.monitors.length) monSelect.append(new Option(t('set.waiting'), '0'));
   monSelect.value = String(settings.mon);
 
   for (const radio of form.querySelectorAll('input[name="mode"]')) {
@@ -840,13 +876,14 @@ function openSettings() {
   field('sideRight').checked = settings.side === 'right';
   field('token').value = settings.token;
   updateOutputs();
-  if (!dialog.open) dialog.showModal();
 }
 
 function updateOutputs() {
   field('deadzoneOut').value = `${settings.deadzone} px`;
-  field('mirrorOpacityOut').value = `%${Math.round(settings.mirrorOpacity * 100)}`;
-  field('thresholdOut').value = settings.threshold > 0 ? settings.threshold.toFixed(2) : 'kapalı';
+  field('mirrorOpacityOut').value = new Intl.NumberFormat(document.documentElement.lang, { style: 'percent' }).format(
+    settings.mirrorOpacity,
+  );
+  field('thresholdOut').value = settings.threshold > 0 ? settings.threshold.toFixed(2) : t('set.threshold.off');
 }
 
 let tokenChanged = false;
@@ -855,6 +892,12 @@ let tokenChanged = false;
 function onSettingChange(e) {
   const target = /** @type {HTMLInputElement} */ (e.target);
   switch (target.name) {
+    case 'lang':
+      if (settings.lang === target.value) return;
+      settings.lang = target.value === 'en' ? 'en' : 'tr';
+      saveSettings();
+      refreshLanguage();
+      return;
     case 'mode':
       settings.mode = target.value === 'pen' ? 'pen' : 'mouse';
       sendConfig();
@@ -923,6 +966,7 @@ $('#fullscreenBtn').addEventListener('click', async () => {
 // ------------------------------------------------------------------ başlat
 
 app.dataset.side = settings.side;
+refreshLanguage();
 applyMirrorOpacity();
 mirrorSwitch.setAttribute('aria-checked', String(settings.mirror));
 areaEl.classList.toggle('mirroring', settings.mirror);

@@ -11,7 +11,7 @@ if not exist "%CSC%" (
 )
 if not exist bin mkdir bin
 "%CSC%" /nologo /codepage:65001 /optimize+ /platform:anycpu /target:exe /r:System.Drawing.dll /out:bin\penwin.exe ^
-  /resource:web\index.html,index.html /resource:web\app.js,app.js /resource:web\style.css,style.css ^
+  /resource:web\index.html,index.html /resource:web\app.js,app.js /resource:web\i18n.js,i18n.js /resource:web\style.css,style.css ^
   src\*.cs
 if errorlevel 1 exit /b 1
 echo Derlendi: bin\penwin.exe

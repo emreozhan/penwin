@@ -4,11 +4,11 @@
 
 Turns an iPad + Apple Pencil into a wireless drawing tablet for Windows. **Nothing is installed on the iPad**: you open an address in Safari and your pen movements reach the PC instantly over the local Wi-Fi. Built for working with a pen instead of a mouse in CAD programs such as Sharp3D and Fusion 360.
 
-> The iPad interface is currently in Turkish; the button names are given below with their meaning.
+> The iPad interface is available in English and Turkish. It follows the iPad's language and can be changed under **Settings → Language**.
 
 ### iPad screen — the PenWin page opened in Safari
 
-![PenWin on the iPad: toolbar, drawing area matching the monitor's aspect ratio, and the pen trail](docs/penwin-ipad.png)
+![PenWin on the iPad: toolbar, drawing area matching the monitor's aspect ratio, and the pen trail](docs/penwin-ipad-en.png)
 
 *Captured on the iPad (1180×820, landscape). The blue lines are the pen's temporary trail on the iPad; the orange crosshair is the position of the hovering pen.*
 
@@ -22,7 +22,7 @@ Turns an iPad + Apple Pencil into a wireless drawing tablet for Windows. **Nothi
  └───────────────────┘                └──────────────────────────────┘
 ```
 
-The iPad works like a **screenless tablet** such as a Wacom Intuos: you move the pen on the iPad and watch the cursor on the monitor. If you want to see where you are, the **PC ekranı** (PC screen) switch in the toolbar places a semi-transparent image of the selected monitor behind the drawing area, refreshed once per second. The drawing area on the iPad has the selected monitor's aspect ratio and maps one-to-one onto the whole monitor.
+The iPad works like a **screenless tablet** such as a Wacom Intuos: you move the pen on the iPad and watch the cursor on the monitor. If you want to see where you are, the **PC view** switch in the toolbar places a semi-transparent image of the selected monitor behind the drawing area, refreshed once per second. The drawing area on the iPad has the selected monitor's aspect ratio and maps one-to-one onto the whole monitor.
 
 ## Requirements
 
@@ -44,7 +44,7 @@ On the first run `build.cmd` is called automatically and produces `bin\penwin.ex
 ```
 
 1. If Windows Firewall asks, allow access on **Private networks**.
-2. Open the address in Safari on the iPad. The indicator at the top should read **Bağlı** (connected).
+2. Open the address in Safari on the iPad. The indicator at the top should read **Connected**.
 3. For everyday use choose *Share → Add to Home Screen* in Safari: it opens full screen without the address bar and remembers the key.
 
 The key (`#k=...`) is stored in `%LOCALAPPDATA%\PenWin\token.txt` and survives rebuilds. Run `start.cmd --new-key` to generate a new one.
@@ -57,30 +57,31 @@ The key (`#k=...`) is stored in `%LOCALAPPDATA%\PenWin\token.txt` and survives r
 
 | Button | What it does |
 | --- | --- |
-| Sol (left) | Pen is the left button (default) |
-| Sağ (right) | The next touch is a right click, then it returns to left |
+| Left | Pen is the left button (default) |
+| Right | The next touch is a right click, then it returns to left |
 | Pan | Pen drags with the middle button (pans the view in Fusion 360) |
 | Orbit | Pen drags with Shift + middle button (orbits in Fusion 360) |
 | Shift / Ctrl | Stays held down until tapped again (for multi-select) |
-| Esc, Enter, Sil (Delete), Tab | Keys. Tab moves between dimension input fields in Fusion |
-| Geri / İleri (undo / redo) | Ctrl+Z / Ctrl+Y |
+| Esc, Enter, Delete, Tab | Keys. Tab moves between dimension input fields in Fusion |
+| Undo / Redo | Ctrl+Z / Ctrl+Y |
 | + / − | Mouse wheel (zoom) |
-| PC ekranı (PC screen) | When on, the selected monitor appears semi-transparent behind the drawing area (1 frame per second). If it cannot be captured the button shows "alınamadı" (failed), e.g. on the lock screen or a UAC prompt. |
+| PC view | When on, the selected monitor appears semi-transparent behind the drawing area (1 frame per second). If it cannot be captured the button shows "unavailable", e.g. on the lock screen or a UAC prompt. |
 
 While Pan or Orbit is active, tapping the same button again returns to left click.
 
 **Two fingers** (can be turned off in the settings): drag = pan (middle button), pinch = zoom (wheel). Finger and palm touches right after pen use are ignored.
 
-**Settings (Ayarlar)**
+**Settings**
 
 *iPad screen — the settings window:*
 
-<img src="docs/penwin-ayarlar.png" alt="PenWin settings window on the iPad" width="640">
+<img src="docs/penwin-settings-en.png" alt="PenWin settings window on the iPad" width="640">
 
-- **Mode:** *Fare* (mouse) is recommended for CAD and works in every program. *Kalem (Windows Ink)* (pen) sends pressure and tilt as real pen input; it is meant for pressure-sensitive drawing programs. In this mode right/pan/orbit are still sent as mouse input.
-- **Ekran (screen):** Which monitor to map when there are several.
+- **Language:** English or Turkish. By default it follows the iPad's language.
+- **Mode:** *Mouse* is recommended for CAD and works in every program. *Pen (Windows Ink)* sends pressure and tilt as real pen input; it is meant for pressure-sensitive drawing programs. In this mode right/pan/orbit are still sent as mouse input.
+- **Screen:** Which monitor to map when there are several.
 - **Click dead zone:** After the pen touches down, no movement is sent until it moves this many pixels. A shaky tap therefore does not become an unwanted drag in CAD (e.g. an arc instead of a line in Fusion). Default 4 px.
-- **PC screen opacity:** How visible the background image is (default 35%).
+- **PC view opacity:** How visible the background image is (default 35%).
 - **Contact threshold:** For iPads without hover. A light touch only moves the cursor; it clicks once this pressure is exceeded.
 
 ## Troubleshooting
@@ -88,8 +89,8 @@ While Pan or Orbit is active, tapping the same button again returns to left clic
 | Symptom | Fix |
 | --- | --- |
 | The page does not open on the iPad | Check the firewall permission (*Windows Security → Firewall → Allow an app* → `penwin.exe`, Private). If the network profile is *Public*, switch it to *Private*. Guest Wi-Fi networks isolate devices from each other and may not work. |
-| "Anahtar hatalı" (wrong key) | Enter the 6-character key shown in the PC window in the settings. |
-| "Başka bir cihaz bağlandı" (another device connected) | Only one device controls the PC at a time; the last one to connect wins. |
+| "Wrong key" | Enter the 6-character key shown in the PC window in the settings. |
+| "Another device connected" | Only one device controls the PC at a time; the last one to connect wins. |
 | Nothing happens in some windows | Windows blocks outside input to programs running as administrator. Run `penwin.exe` as administrator too. |
 | Cursor stutters / high latency | Check the ms value in the indicator. Switch to 5 GHz, move the iPad closer to the router. |
 | The connection drops | No key or button stays held down; the server releases everything. The page reconnects by itself. |
@@ -124,6 +125,7 @@ src/Monitors.cs       monitor list (physical pixels)
 src/ScreenCapture.cs  monitor image for /shot.jpg (scaled-down JPEG)
 src/Native.cs         Win32 declarations
 web/                  iPad page (HTML, CSS, JS); embedded into the exe
+web/i18n.js           interface texts (English / Turkish)
 ```
 
 To see page changes without rebuilding while developing:

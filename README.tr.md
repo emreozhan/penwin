@@ -75,6 +75,7 @@ Pan ya da Orbit etkinken aynı düğmeye tekrar dokunmak Sol'a döndürür.
 
 <img src="docs/penwin-ayarlar.png" alt="iPad'de PenWin ayarlar penceresi" width="640">
 
+- **Dil:** Türkçe veya İngilizce. Varsayılan olarak iPad'in dilini izler.
 - **Çalışma modu:** *Fare* CAD için önerilir ve her programda çalışır. *Kalem (Windows Ink)* basınç ve eğimi gerçek kalem girdisi olarak gönderir; basınca duyarlı çizim programları içindir. Bu modda Sağ/Pan/Orbit yine fare olarak gider.
 - **Ekran:** Birden çok monitör varsa hangisinin eşleneceği.
 - **Tıklama ölü bölgesi:** Kalem dokunduktan sonra bu kadar (px) kaymadan hareket gönderilmez. Böylece titreyen bir tık, CAD'de istenmeyen bir sürüklemeye (ör. Fusion'da çizgi yerine yay) dönüşmez. Varsayılan 4 px.
@@ -122,6 +123,7 @@ src/Monitors.cs     monitör listesi (fiziksel piksel)
 src/ScreenCapture.cs  /shot.jpg için monitör görüntüsü (küçültülmüş JPEG)
 src/Native.cs       Win32 tanımları
 web/                iPad sayfası (HTML, CSS, JS); exe'ye gömülür
+web/i18n.js         arayüz metinleri (Türkçe / İngilizce)
 ```
 
 Geliştirirken sayfa değişikliklerini yeniden derlemeden görmek için:

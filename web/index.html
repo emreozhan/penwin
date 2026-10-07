@@ -14,44 +14,44 @@
 </head>
 <body>
   <div id="app" data-side="left">
-    <aside id="toolbar" aria-label="Araçlar">
+    <aside id="toolbar" data-i18n-aria="toolbar">
       <div class="brand">Pen<b>Win</b></div>
 
       <section class="group">
-        <h2>Kalem tuşu</h2>
-        <button class="tool" data-btn="L" aria-pressed="true">Sol<small>tık / çiz</small></button>
-        <button class="tool" data-btn="R" aria-pressed="false">Sağ<small>tek sefer</small></button>
-        <button class="tool" data-btn="M" aria-pressed="false">Pan<small>orta tuş</small></button>
-        <button class="tool" data-btn="O" aria-pressed="false">Orbit<small>shift + orta</small></button>
+        <h2 data-i18n="group.button"></h2>
+        <button class="tool" data-btn="L" aria-pressed="true"><span data-i18n="btn.left"></span><small data-i18n="btn.left.sub"></small></button>
+        <button class="tool" data-btn="R" aria-pressed="false"><span data-i18n="btn.right"></span><small data-i18n="btn.right.sub"></small></button>
+        <button class="tool" data-btn="M" aria-pressed="false"><span data-i18n="btn.pan"></span><small data-i18n="btn.pan.sub"></small></button>
+        <button class="tool" data-btn="O" aria-pressed="false"><span data-i18n="btn.orbit"></span><small data-i18n="btn.orbit.sub"></small></button>
       </section>
 
       <section class="group">
-        <h2>Basılı tut</h2>
+        <h2 data-i18n="group.hold"></h2>
         <button class="tool" data-mod="shift" aria-pressed="false">Shift</button>
         <button class="tool" data-mod="ctrl" aria-pressed="false">Ctrl</button>
       </section>
 
       <section class="group">
-        <h2>Tuşlar</h2>
+        <h2 data-i18n="group.keys"></h2>
         <button class="tool" data-key="esc">Esc</button>
         <button class="tool" data-key="enter">Enter</button>
-        <button class="tool" data-key="ctrl+z">Geri<small>ctrl+z</small></button>
-        <button class="tool" data-key="ctrl+y">İleri<small>ctrl+y</small></button>
-        <button class="tool" data-key="delete">Sil<small>del</small></button>
-        <button class="tool" data-key="tab">Tab<small>ölçü alanı</small></button>
+        <button class="tool" data-key="ctrl+z"><span data-i18n="key.undo"></span><small>ctrl+z</small></button>
+        <button class="tool" data-key="ctrl+y"><span data-i18n="key.redo"></span><small>ctrl+y</small></button>
+        <button class="tool" data-key="delete"><span data-i18n="key.delete"></span><small>del</small></button>
+        <button class="tool" data-key="tab">Tab<small data-i18n="key.tab.sub"></small></button>
         <button class="tool" data-wheel="120">+<small>zoom</small></button>
         <button class="tool" data-wheel="-120">−<small>zoom</small></button>
       </section>
 
       <section class="group">
-        <h2>Görünüm</h2>
+        <h2 data-i18n="group.view"></h2>
         <button class="switch" id="mirrorSwitch" role="switch" aria-checked="false">
           <span class="track"><span class="knob"></span></span>
-          <span class="switch-label">PC ekranı<small>arka planda</small></span>
+          <span class="switch-label"><span data-i18n="mirror.label"></span><small id="mirrorHint"></small></span>
         </button>
       </section>
 
-      <button class="tool settings-btn" id="settingsBtn">Ayarlar</button>
+      <button class="tool settings-btn" id="settingsBtn" data-i18n="settings"></button>
     </aside>
 
     <main id="padWrap">
@@ -60,10 +60,10 @@
         <canvas id="ink"></canvas>
         <div id="status" role="status">
           <span class="dot" data-state="off"></span>
-          <span id="statusText">Bağlanıyor…</span>
+          <span id="statusText"></span>
           <span id="latency" class="mono"></span>
-          <span id="modeBadge" class="badge">Fare</span>
-          <span id="hoverBadge" class="badge dim" title="Apple Pencil hover algılandı mı">Hover ?</span>
+          <span id="modeBadge" class="badge"></span>
+          <span id="hoverBadge" class="badge dim" data-i18n-title="hover.title">Hover ?</span>
         </div>
         <div id="notice" hidden></div>
       </div>
@@ -73,54 +73,62 @@
   <dialog id="settings">
     <form method="dialog" class="sheet">
       <header>
-        <h1>Ayarlar</h1>
-        <button value="close" class="close" aria-label="Kapat">Kapat</button>
+        <h1 data-i18n="settings"></h1>
+        <button value="close" class="close" data-i18n="close"></button>
       </header>
 
+      <label class="row">
+        <span data-i18n="set.lang"></span>
+        <select name="lang">
+          <option value="tr">Türkçe</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+
       <fieldset>
-        <legend>Çalışma modu</legend>
-        <label class="choice"><input type="radio" name="mode" value="mouse"> <span><b>Fare</b> — CAD için önerilen. Fusion 360 / Sharp3D her yerde çalışır.</span></label>
-        <label class="choice"><input type="radio" name="mode" value="pen"> <span><b>Kalem (Windows Ink)</b> — basınç ve eğim gider; çizim uygulamaları için.</span></label>
+        <legend data-i18n="set.mode"></legend>
+        <label class="choice"><input type="radio" name="mode" value="mouse"> <span data-i18n-html="set.mode.mouse"></span></label>
+        <label class="choice"><input type="radio" name="mode" value="pen"> <span data-i18n-html="set.mode.pen"></span></label>
       </fieldset>
 
       <label class="row">
-        <span>Ekran</span>
+        <span data-i18n="set.screen"></span>
         <select name="mon"></select>
       </label>
 
       <label class="row">
-        <span>Tıklama ölü bölgesi <output name="deadzoneOut" class="mono"></output></span>
+        <span><span data-i18n="set.deadzone"></span> <output name="deadzoneOut" class="mono"></output></span>
         <input type="range" name="deadzone" min="0" max="16" step="1">
-        <small>Dokunduktan sonra kalem bu kadar kaymadan hareket gönderilmez; titreyen tıklamalar sürüklemeye dönüşmez.</small>
+        <small data-i18n="set.deadzone.help"></small>
       </label>
 
       <label class="row">
-        <span>Temas eşiği <output name="thresholdOut" class="mono"></output></span>
+        <span><span data-i18n="set.threshold"></span> <output name="thresholdOut" class="mono"></output></span>
         <input type="range" name="threshold" min="0" max="0.6" step="0.05">
-        <small>Hover desteklemeyen iPad'ler için: hafif temas yalnızca imleci gezdirir, bastırınca tıklar. Hover varsa 0 bırakın.</small>
+        <small data-i18n="set.threshold.help"></small>
       </label>
 
       <label class="row">
-        <span>PC ekranı saydamlığı <output name="mirrorOpacityOut" class="mono"></output></span>
+        <span><span data-i18n="set.opacity"></span> <output name="mirrorOpacityOut" class="mono"></output></span>
         <input type="range" name="mirrorOpacity" min="0.1" max="0.9" step="0.05">
-        <small>Araç çubuğundaki "PC ekranı" anahtarı açıkken çizim alanının arkasında saniyede bir yenilenir.</small>
+        <small data-i18n="set.opacity.help"></small>
       </label>
 
-      <label class="check"><input type="checkbox" name="gestures"> İki parmak: sürükle = pan, sıkıştır = zoom</label>
-      <label class="check"><input type="checkbox" name="trail"> Kalem izini iPad'de göster</label>
-      <label class="check"><input type="checkbox" name="sideRight"> Araç çubuğu sağda (solak kullanım)</label>
+      <label class="check"><input type="checkbox" name="gestures"> <span data-i18n="set.gestures"></span></label>
+      <label class="check"><input type="checkbox" name="trail"> <span data-i18n="set.trail"></span></label>
+      <label class="check"><input type="checkbox" name="sideRight"> <span data-i18n="set.side"></span></label>
 
       <label class="row">
-        <span>Bağlantı anahtarı</span>
+        <span data-i18n="set.token"></span>
         <input type="text" name="token" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="6" class="mono">
-        <small>PC'deki PenWin penceresinde yazar.</small>
+        <small data-i18n="set.token.help"></small>
       </label>
 
       <div class="actions">
-        <button type="button" id="fullscreenBtn">Tam ekran</button>
-        <button type="button" id="reconnectBtn">Yeniden bağlan</button>
+        <button type="button" id="fullscreenBtn" data-i18n="set.fullscreen"></button>
+        <button type="button" id="reconnectBtn" data-i18n="set.reconnect"></button>
       </div>
-      <p class="hint">İpucu: Safari'de Paylaş → <b>Ana Ekrana Ekle</b> ile adres çubuğu olmadan tam ekran açılır.</p>
+      <p class="hint" data-i18n-html="set.hint"></p>
     </form>
   </dialog>
 </body>

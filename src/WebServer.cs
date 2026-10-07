@@ -22,7 +22,7 @@ namespace PenWin
         private static readonly Dictionary<string, string> Files = new Dictionary<string, string>
         {
             { "/", "index.html" }, { "/index.html", "index.html" },
-            { "/app.js", "app.js" }, { "/style.css", "style.css" }
+            { "/app.js", "app.js" }, { "/i18n.js", "i18n.js" }, { "/style.css", "style.css" }
         };
 
         private readonly IPAddress bind;
