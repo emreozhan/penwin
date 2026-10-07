@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PenWin">
+  <meta name="theme-color" content="#121417">
+  <title>PenWin</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div id="app" data-side="left">
+    <aside id="toolbar" aria-label="Araçlar">
+      <div class="brand">Pen<b>Win</b></div>
+
+      <section class="group">
+        <h2>Kalem tuşu</h2>
+        <button class="tool" data-btn="L" aria-pressed="true">Sol<small>tık / çiz</small></button>
+        <button class="tool" data-btn="R" aria-pressed="false">Sağ<small>tek sefer</small></button>
+        <button class="tool" data-btn="M" aria-pressed="false">Pan<small>orta tuş</small></button>
+        <button class="tool" data-btn="O" aria-pressed="false">Orbit<small>shift + orta</small></button>
+      </section>
+
+      <section class="group">
+        <h2>Basılı tut</h2>
+        <button class="tool" data-mod="shift" aria-pressed="false">Shift</button>
+        <button class="tool" data-mod="ctrl" aria-pressed="false">Ctrl</button>
+      </section>
+
+      <section class="group">
+        <h2>Tuşlar</h2>
+        <button class="tool" data-key="esc">Esc</button>
+        <button class="tool" data-key="enter">Enter</button>
+        <button class="tool" data-key="ctrl+z">Geri<small>ctrl+z</small></button>
+        <button class="tool" data-key="ctrl+y">İleri<small>ctrl+y</small></button>
+        <button class="tool" data-key="delete">Sil<small>del</small></button>
+        <button class="tool" data-key="tab">Tab<small>ölçü alanı</small></button>
+        <button class="tool" data-wheel="120">+<small>zoom</small></button>
+        <button class="tool" data-wheel="-120">−<small>zoom</small></button>
+      </section>
+
+      <section class="group">
+        <h2>Görünüm</h2>
+        <button class="switch" id="mirrorSwitch" role="switch" aria-checked="false">
+          <span class="track"><span class="knob"></span></span>
+          <span class="switch-label">PC ekranı<small>arka planda</small></span>
+        </button>
+      </section>
+
+      <button class="tool settings-btn" id="settingsBtn">Ayarlar</button>
+    </aside>
+
+    <main id="padWrap">
+      <div id="pad">
+        <div id="area"><img id="shot" alt="" hidden><span class="corner tl"></span><span class="corner br"></span></div>
+        <canvas id="ink"></canvas>
+        <div id="status" role="status">
+          <span class="dot" data-state="off"></span>
+          <span id="statusText">Bağlanıyor…</span>
+          <span id="latency" class="mono"></span>
+          <span id="modeBadge" class="badge">Fare</span>
+          <span id="hoverBadge" class="badge dim" title="Apple Pencil hover algılandı mı">Hover ?</span>
+        </div>
+        <div id="notice" hidden></div>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="settings">
+    <form method="dialog" class="sheet">
+      <header>
+        <h1>Ayarlar</h1>
+        <button value="close" class="close" aria-label="Kapat">Kapat</button>
+      </header>
+
+      <fieldset>
+        <legend>Çalışma modu</legend>
+        <label class="choice"><input type="radio" name="mode" value="mouse"> <span><b>Fare</b> — CAD için önerilen. Fusion 360 / Sharp3D her yerde çalışır.</span></label>
+        <label class="choice"><input type="radio" name="mode" value="pen"> <span><b>Kalem (Windows Ink)</b> — basınç ve eğim gider; çizim uygulamaları için.</span></label>
+      </fieldset>
+
+      <label class="row">
+        <span>Ekran</span>
+        <select name="mon"></select>
+      </label>
+
+      <label class="row">
+        <span>Tıklama ölü bölgesi <output name="deadzoneOut" class="mono"></output></span>
+        <input type="range" name="deadzone" min="0" max="16" step="1">
+        <small>Dokunduktan sonra kalem bu kadar kaymadan hareket gönderilmez; titreyen tıklamalar sürüklemeye dönüşmez.</small>
+      </label>
+
+      <label class="row">
+        <span>Temas eşiği <output name="thresholdOut" class="mono"></output></span>
+        <input type="range" name="threshold" min="0" max="0.6" step="0.05">
+        <small>Hover desteklemeyen iPad'ler için: hafif temas yalnızca imleci gezdirir, bastırınca tıklar. Hover varsa 0 bırakın.</small>
+      </label>
+
+      <label class="row">
+        <span>PC ekranı saydamlığı <output name="mirrorOpacityOut" class="mono"></output></span>
+        <input type="range" name="mirrorOpacity" min="0.1" max="0.9" step="0.05">
+        <small>Araç çubuğundaki "PC ekranı" anahtarı açıkken çizim alanının arkasında saniyede bir yenilenir.</small>
+      </label>
+
+      <label class="check"><input type="checkbox" name="gestures"> İki parmak: sürükle = pan, sıkıştır = zoom</label>
+      <label class="check"><input type="checkbox" name="trail"> Kalem izini iPad'de göster</label>
+      <label class="check"><input type="checkbox" name="sideRight"> Araç çubuğu sağda (solak kullanım)</label>
+
+      <label class="row">
+        <span>Bağlantı anahtarı</span>
+        <input type="text" name="token" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="6" class="mono">
+        <small>PC'deki PenWin penceresinde yazar.</small>
+      </label>
+
+      <div class="actions">
+        <button type="button" id="fullscreenBtn">Tam ekran</button>
+        <button type="button" id="reconnectBtn">Yeniden bağlan</button>
+      </div>
+      <p class="hint">İpucu: Safari'de Paylaş → <b>Ana Ekrana Ekle</b> ile adres çubuğu olmadan tam ekran açılır.</p>
+    </form>
+  </dialog>
+</body>
+</html>
