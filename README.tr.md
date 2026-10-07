@@ -22,6 +22,15 @@ iPad + Apple Pencil'ı Windows için kablosuz çizim tableti yapar. iPad'e **uyg
 
 iPad, Wacom Intuos gibi **ekransız tablet** olarak çalışır: kalemi iPad'de gezdirirken imleci monitörde izlersiniz. Nerede olduğunuzu görmek isterseniz araç çubuğundaki **PC ekranı** anahtarı, seçili monitörün görüntüsünü çizim alanının arkasına yarı saydam olarak saniyede bir kare yerleştirir. iPad'deki çalışma alanı seçilen monitörün en-boy oranındadır ve monitörün tamamına birebir eşlenir.
 
+## İndir
+
+Son sürümü **[Releases](https://github.com/emreozhan/penwin/releases/latest)** sayfasından alın:
+
+- **`PenWin-Setup-x.y.z.exe`** — kurulum (önerilen). Yönetici izni istemeden kullanıcıya kurulur, Başlat menüsüne kısayol ekler (masaüstü kısayolu isteğe bağlı), *Ayarlar → Uygulamalar*'dan kaldırılabilir.
+- **`PenWin-x.y.z-portable.zip`** — kurulumsuz: zip'i açıp `penwin.exe`'yi çalıştırın.
+
+Dosyalar imzalı olmadığından Windows SmartScreen ilk açılışta uyarabilir: *Ek bilgi → Yine de çalıştır*.
+
 ## Gereksinimler
 
 - Windows 10 (1809+) veya 11. Derleyici (`csc.exe`) .NET Framework 4 ile Windows'ta zaten vardır; ek kurulum gerekmez.
@@ -30,11 +39,13 @@ iPad, Wacom Intuos gibi **ekransız tablet** olarak çalışır: kalemi iPad'de 
 
 ## Çalıştırma
 
+Başlat menüsünden **PenWin**'i açın (ya da taşınabilir zip'teki `penwin.exe`'yi çalıştırın). Kaynak koddan çalıştırmak için:
+
 ```bash
 start.cmd
 ```
 
-İlk çalıştırmada `build.cmd` otomatik çağrılır ve `bin\penwin.exe` üretilir. Pencerede şuna benzer bir adres çıkar:
+`start.cmd` ilk çalıştırmada `build.cmd`'yi çağırır ve `bin\penwin.exe` üretilir. Pencerede şuna benzer bir adres çıkar:
 
 ```
   iPad'de Safari ile şu adresi açın:
@@ -124,6 +135,7 @@ src/ScreenCapture.cs  /shot.jpg için monitör görüntüsü (küçültülmüş 
 src/Native.cs       Win32 tanımları
 web/                iPad sayfası (HTML, CSS, JS); exe'ye gömülür
 web/i18n.js         arayüz metinleri (Türkçe / İngilizce)
+installer/penwin.iss  Inno Setup kurulum betiği; .github/workflows v* etiketlerinden release üretir
 ```
 
 Geliştirirken sayfa değişikliklerini yeniden derlemeden görmek için:

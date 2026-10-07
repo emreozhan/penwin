@@ -24,6 +24,15 @@ Turns an iPad + Apple Pencil into a wireless drawing tablet for Windows. **Nothi
 
 The iPad works like a **screenless tablet** such as a Wacom Intuos: you move the pen on the iPad and watch the cursor on the monitor. If you want to see where you are, the **PC view** switch in the toolbar places a semi-transparent image of the selected monitor behind the drawing area, refreshed once per second. The drawing area on the iPad has the selected monitor's aspect ratio and maps one-to-one onto the whole monitor.
 
+## Download
+
+Get the latest version from **[Releases](https://github.com/emreozhan/penwin/releases/latest)**:
+
+- **`PenWin-Setup-x.y.z.exe`** — installer (recommended). Installs per user without admin rights, adds a Start menu shortcut (desktop shortcut optional) and can be removed from *Settings → Apps*.
+- **`PenWin-x.y.z-portable.zip`** — no installation: extract and run `penwin.exe`.
+
+The files are not code-signed, so Windows SmartScreen may warn on first run: *More info → Run anyway*.
+
 ## Requirements
 
 - Windows 10 (1809+) or 11. The compiler (`csc.exe`) already ships with Windows as part of .NET Framework 4; nothing else to install.
@@ -32,11 +41,13 @@ The iPad works like a **screenless tablet** such as a Wacom Intuos: you move the
 
 ## Running
 
+Start **PenWin** from the Start menu (or run `penwin.exe` from the portable zip). To run from source instead:
+
 ```bash
 start.cmd
 ```
 
-On the first run `build.cmd` is called automatically and produces `bin\penwin.exe`. The window shows an address like this:
+`start.cmd` calls `build.cmd` on the first run and produces `bin\penwin.exe`. The window shows an address like this:
 
 ```
   iPad'de Safari ile şu adresi açın:
@@ -126,6 +137,7 @@ src/ScreenCapture.cs  monitor image for /shot.jpg (scaled-down JPEG)
 src/Native.cs         Win32 declarations
 web/                  iPad page (HTML, CSS, JS); embedded into the exe
 web/i18n.js           interface texts (English / Turkish)
+installer/penwin.iss     Inno Setup installer script; .github/workflows builds releases from v* tags
 ```
 
 To see page changes without rebuilding while developing:

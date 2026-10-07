@@ -1,0 +1,72 @@
+# main'e her gönderimde derler ve paketler (çıktılar Actions artifact'i olarak kalır).
+# v* etiketi gönderildiğinde ayrıca GitHub Release oluşturur: kurulum exe'si + taşınabilir zip.
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version
+        id: ver
+        shell: pwsh
+        run: |
+          $v = if ("${{ github.ref_type }}" -eq "tag") { "${{ github.ref_name }}".TrimStart("v") } else { "0.0.0" }
+          "version=$v" >> $env:GITHUB_OUTPUT
+
+      - name: Build penwin.exe (csc.exe, .NET Framework 4)
+        shell: cmd
+        run: build.cmd
+
+      - name: Installer (Inno Setup)
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress -y
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /Qp "/DAppVersion=${{ steps.ver.outputs.version }}" installer\penwin.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Portable zip
+        shell: pwsh
+        run: |
+          $name = "PenWin-${{ steps.ver.outputs.version }}-portable"
+          New-Item -ItemType Directory "dist/$name" | Out-Null
+          Copy-Item bin/penwin.exe, README.md, README.tr.md, LICENSE "dist/$name/"
+          Compress-Archive -Path "dist/$name/*" -DestinationPath "dist/$name.zip"
+          Get-ChildItem dist -File | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: penwin-${{ steps.ver.outputs.version }}
+          path: |
+            dist/*.exe
+            dist/*.zip
+
+      - uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          files: |
+            dist/*.exe
+            dist/*.zip
+          generate_release_notes: true
+          body: |
+            ### Download / İndir
+
+            | File / Dosya | |
+            | --- | --- |
+            | `PenWin-Setup-${{ steps.ver.outputs.version }}.exe` | **Installer (recommended).** No admin rights needed; adds a Start menu shortcut and an uninstaller. / **Kurulum (önerilen).** Yönetici izni gerekmez; Başlat menüsü kısayolu ve kaldırıcı ekler. |
+            | `PenWin-${{ steps.ver.outputs.version }}-portable.zip` | Portable: extract and run `penwin.exe`. / Taşınabilir: zip'i açıp `penwin.exe`'yi çalıştırın. |
+
+            Then open the address shown in the PenWin window in Safari on your iPad (same Wi-Fi). Nothing is installed on the iPad. See the [README](https://github.com/${{ github.repository }}#readme).
+            Ardından PenWin penceresindeki adresi aynı Wi-Fi'daki iPad'de Safari ile açın. iPad'e bir şey kurulmaz. Ayrıntılar: [README.tr.md](https://github.com/${{ github.repository }}/blob/main/README.tr.md).
+
+            > The files are not code-signed, so Windows SmartScreen may warn: *More info → Run anyway*. On first run, allow PenWin on **Private networks** in the firewall prompt.
+            > Dosyalar imzalı olmadığından SmartScreen uyarabilir: *Ek bilgi → Yine de çalıştır*. İlk çalıştırmada güvenlik duvarı sorusunda **Özel ağlar** için izin verin.
