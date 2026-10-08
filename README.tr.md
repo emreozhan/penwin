@@ -4,6 +4,10 @@
 
 iPad + Apple Pencil'ı Windows için kablosuz çizim tableti yapar. iPad'e **uygulama kurulmaz**: Safari'de bir adres açarsınız, kalem hareketleriniz yerel Wi-Fi üzerinden anında PC'ye gider. Sharp3D ve Fusion 360 gibi CAD programlarında fare yerine kalemle çalışmak için yazıldı.
 
+<p align="center">
+  <img src="docs/penwin-intro-tr.webp" alt="PenWin intro" width="360">
+</p>
+
 ### iPad ekranı — Safari'de açılan PenWin sayfası
 
 ![iPad'de PenWin: araç çubuğu, monitör oranında çizim alanı ve kalem izi](docs/penwin-ipad.png)

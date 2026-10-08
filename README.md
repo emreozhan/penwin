@@ -6,6 +6,10 @@ Turns an iPad + Apple Pencil into a wireless drawing tablet for Windows. **Nothi
 
 > The iPad interface is available in English and Turkish. It follows the iPad's language and can be changed under **Settings → Language**.
 
+<p align="center">
+  <img src="docs/penwin-intro.webp" alt="PenWin intro" width="360">
+</p>
+
 ### iPad screen — the PenWin page opened in Safari
 
 ![PenWin on the iPad: toolbar, drawing area matching the monitor's aspect ratio, and the pen trail](docs/penwin-ipad-en.png)
